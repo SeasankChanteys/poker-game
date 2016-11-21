@@ -4,51 +4,7 @@
 #include<stdlib.h> //rand and srand
 #include<time.h> //time
 
-enum values {ACE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
-values val;
-
-//switch(val) {
-//	case ACE:
-//		cout<<"ACE";
-//		break;
-//	case TWO:
-//		cout<<"TWO";
-//		break;
-//	case THREE:
-//		cout<<"THREE";
-//		break;
-//	case FOUR:
-//		cout<<"FOUR";
-//		break;
-//	case FIVE:
-//		cout<<"FIVE";
-//		break;
-//	case SIX:
-//		cout<<"SIX";
-//		break;
-//	case SEVEN:
-//			cout<<"SEVEN";
-//			break;
-//	case EIGHT:
-//		cout<<"EIGHT";
-//		break;
-//	case NINE:
-//		cout<<"NINE";
-//		break;
-//	case TEN:
-//		cout<<"TEN";
-//		break;
-//	case JACK:
-//		cout<<"JACK";
-//		break;
-//	case QUEEN:
-//		cout<<"QUEEN";
-//		break;
-//	case KING:
-//		cout<<"KING";
-//		break;
-//}
-//enum suits {HEARTS, DIAMONDS, SPADES, CLUBS};
+enum score {DOUBLE, TRIPLE, STRAIT, FLUSH, FULLHOUSE, FOURKIND, STRAITFLUSH, ROYAL, NOTHING = 0};
 
 using namespace std;
 
@@ -94,8 +50,8 @@ public:
 
 	Hand() {
 		for(int i = 0; i<5; i++) {
-			hand.insert(hand.begin(), cards[cards.size()]);
-			cards.pop_back();
+			hand.insert(hand.begin(), cards[0]);
+			cards.erase(cards.begin());
 		}
 	}
 };
@@ -131,8 +87,23 @@ void Deck::shuffle() {
 }
 
 void Hand::sortHand() {
-	for(int i = 0; i<5; i++) {
-
+	for(int i = 0; i<4; i++) {
+		for(int j = i+1; j<5; j++) {
+			if(hand[i]->suit > hand[j]->suit) {
+				hand.insert(hand.begin()+j+1, hand[i]);
+				hand.erase(hand.begin()+i);
+				i--;
+			}
+		}
+	}
+	for(int i = 0; i<4; i++) {
+		for(int j = i+1; j<5; j++) {
+			if(hand[i]->suit==hand[j]->suit && hand[i]->value > hand[j]-> value) {
+				hand.insert(hand.begin()+j+1, hand[i]);
+				hand.erase(hand.begin()+i);
+				i--;
+			}
+		}
 	}
 }
 
@@ -150,13 +121,13 @@ void printHand(Hand h) {
 void startGame() {
 	Deck d;
 	d.shuffle();
-	d.printDeck();
+	//d.printDeck();
 
 	int playNum; //number of players
 	bool cont = true; //true if player wants to continue
 
 	string input;
-	Hand a;
+	//Hand a;
 
 	do {
 		cout<<"Do you want to play a game?"<<endl;
@@ -175,7 +146,12 @@ void startGame() {
 			cout<<"Player "<<i+1<<": "<<endl;
 			printHand(*players[i]);
 			cout<<endl;
+			cout<<"-X-"<<endl;
+			cout<<endl;
+			players[i]->sortHand();
+			printHand(*players[i]);
 
+			cout<<endl;
 		}
 	}while(cont == true);
 }
