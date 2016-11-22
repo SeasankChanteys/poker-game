@@ -4,23 +4,10 @@
 #include<stdlib.h> //rand and srand
 #include<time.h> //time
 
-enum score {NOTHING, PAIR, DOUBLE, TRIPLE, STRAIT, FLUSH, FULLHOUSE, FOURKIND, STRAITFLUSH, ROYAL};
-
-enum value {TWO = 2, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE};
-
-enum suit {HEARTS=1, DIAMONDS, CLUBS, SPADES};
+enum score {NOTHING = 0, PAIR = 1, DOUBLE = 2, TRIPLE = 3, STRAIT = 4, FLUSH = 5, FULLHOUSE = 6, FOURKIND = 7, STRAITFLUSH = 8, ROYAL = 9};
+enum suit{HEART, DIAMOND, CLUBS, SPADES};
 
 using namespace std;
-
-score Score = NOTHING;
-
-switch(Score){
-case score::NOTHING :
-	cout<<"Nothing"<<endl;
-	break;
-case score::PAIR :
-	cout<<"Pair of"<<endl;
-}
 
 int valueOfPref = 0;
 
@@ -65,10 +52,13 @@ public:
 	void sortHand();
 	void sortHandValue(); //sorts hand by value
 
-	Hand() {
+	string name;
+
+	Hand(string n) {
 		for(int i = 0; i<5; i++) {
 			hand.insert(hand.begin(), cards[0]);
 			cards.erase(cards.begin());
+			name = n;
 		}
 	}
 };
@@ -85,10 +75,7 @@ void printHand(Hand);
 vector<Hand*> players;
 
 int main() {
-
-
 	startGame();
-
 	return 0;
 }
 
@@ -146,13 +133,15 @@ void Hand::sortHandValue() {
 
 int getHighCard(Hand h) {
 	int HighCard = 0;
-	for(int i = 0; i<4; i++) {
+	for(int i = 0; i<5; i++) {
 		if(h.hand[i]->value>HighCard) {
 			HighCard = h.hand[i]->value;
 		}
 	}
 	return HighCard;
 }
+
+int PopCardVal = 0;
 
 int getScore(Hand h) {
 	int score=9;
@@ -162,8 +151,6 @@ int getScore(Hand h) {
 	bool isBreak = false;
 	while(isBreak == false) {
 		if(score==9) { //royal flush, straitflush, flush and strait
-			cout<<"Loop 9 Entered"<<endl;
-			checker = 0;
 			while(i<4 && h.hand[i]->value==h.hand[i+1]->value+1) {
 				checker++;
 				i++;
@@ -175,41 +162,76 @@ int getScore(Hand h) {
 
 			if(checker==5){ //checks to see if all of the cards are in order
 				if(h.hand[0]->value!=10) //if can't be royal flush
-					score--;
+					score=STRAITFLUSH;
 				else if(checker2!=5) //if all card's suits aren't the same, but is a sequence
-					score=4;
+					score=STRAIT;
 				isBreak=true;
 			}
 			else if(checker2==5) { //if all the cards suits are the same, but is not a sequence
-				score=5;
+				score=FLUSH;
 			}
 			else {
-				score-=2;
+				score=7;
 				i=0;
 			}
 		}
 		else if(score==7) { //four of a kind, three of a kind, full house, pair and two pair
-			checker = 0;
-			while(i<4&&h.hand[i]->value==h.hand[i+1]->value) {
-				checker++;
-				i++;
-			}
 
 			if(checker==3) {
-				if(h.hand[0]->value==h.hand[3]->value||h.hand[1]->value==h.hand[4]->value) {}
-				else
-					score=6;
+				if(h.hand[0]->value==h.hand[3]->value||h.hand[1]->value==h.hand[4]->value) {
+					score=FOURKIND;
+					if(h.hand[0]->value==h.hand[1]->value)
+						PopCardVal = h.hand[0]->value;
+					else
+						PopCardVal = h.hand[2]->value;
+				}
+				else {
+					score=FULLHOUSE;
+					for(int i = 0; i<3; i++) {
+						for(int j = i+1; j<4; j++) {
+							for(int k = j+1; k<5; k++) {
+								if(h.hand[i]->value==h.hand[j]->value && h.hand[j]->value == h.hand[k]->value) {
+									PopCardVal = h.hand[i]->value;
+								}
+							}
+						}
+					}
+				}
 			}
 			else if(checker==2) {
-				if(h.hand[0]->value==h.hand[2]->value||h.hand[1]->value==h.hand[3]->value||h.hand[2]->value==h.hand[4]->value)
-					score=3;
-				else
-					score=2;
+				if(h.hand[0]->value==h.hand[2]->value||h.hand[1]->value==h.hand[3]->value||h.hand[2]->value==h.hand[4]->value) {
+					score=TRIPLE;
+					for(int i = 0; i<3; i++) {
+						for(int j = i+1; j<4; j++) {
+							for(int k = j+1; k<5; k++) {
+								if(h.hand[i]->value==h.hand[j]->value && h.hand[j]->value == h.hand[k]->value) {
+									PopCardVal = h.hand[i]->value;
+								}
+							}
+						}
+					}
+				}
+				else {
+					score=DOUBLE;
+					for(int i = 0; i<4; i++) {
+						for(int j = i+1; j<5; j++) {
+							if(h.hand[i]->value==h.hand[j]->value&&PopCardVal<h.hand[i]->value)
+								PopCardVal = h.hand[i]->value;
+						}
+					}
+				}
 			}
-			else if(checker==1)
-				score=1;
+			else if(checker==1) {
+				score=PAIR;
+				for(int i = 0; i<4; i++) {
+					for(int j = i+1; j<5; j++) {
+						if(h.hand[i]->value==h.hand[j]->value)
+							PopCardVal = h.hand[i]->value;
+					}
+				}
+			}
 			else {
-				score=0;
+				score=NOTHING;
 				//isBreak = true; //delete later
 			}
 			isBreak = true;
@@ -220,9 +242,53 @@ int getScore(Hand h) {
 
 //prints hand h to console
 void printHand(Hand h) {
+	int v = 0;
+	int s = 0;
 	for(int i = 0; i<5; i++ ){
-		cout<<h.hand[i]->value<<" of "<<h.hand[i]->suit<<endl;
+		v = h.hand[i]->value;
+		s = h.hand[i]->suit;
+		//cout<<h.hand[i]->value<<" of "<<h.hand[i]->suit<<endl;
+		if(v==11)
+			cout<<"Jack";
+		else if(v==12)
+			cout<<"Queen";
+		else if(v==13)
+			cout<<"King";
+		else if(v==14)
+			cout<<"Ace";
+		else if(v==2)
+			cout<<"Two";
+		else if(v==3)
+			cout<<"Three";
+		else if(v==4)
+			cout<<"Four";
+		else if(v==5)
+			cout<<"Five";
+		else if(v==6)
+			cout<<"Six";
+		else if(v==7)
+			cout<<"Seven";
+		else if(v==8)
+			cout<<"Eight";
+		else if(v==9)
+			cout<<"Nine";
+		else
+			cout<<"Ten";
+
+		cout<<" of ";
+
+		if(s==1)
+			cout<<"Hearts";
+		else if(s==2)
+			cout<<"Diamonds";
+		else if(s==3)
+			cout<<"Clubs";
+		else if(s==4)
+			cout<<"Spades";
+
+		cout<<endl;
 	}
+
 	cout<<endl<<"-x-"<<endl<<endl;
 }
 
@@ -234,6 +300,9 @@ void startGame() {
 	int playNum; //number of players
 	bool cont = true; //true if player wants to continue
 
+	int valueScore = 0;
+	string name;
+
 	string input;
 	//Hand a;
 
@@ -241,7 +310,6 @@ void startGame() {
 		cout<<"Do you want to play a game?"<<endl;
 		cin>>input;
 		toLower(input);
-		int valueScore = 0;
 		if(input=="yes"||input=="y") {
 		}
 		else {
@@ -252,23 +320,26 @@ void startGame() {
 		cout<<"How many players?"<<endl;
 		cin>>playNum;
 		for(int i = 0; i<playNum; i++) {
-			players.push_back(new Hand());
+			cout<<"What is thou name?"<<endl;
+			cin>>name;
+			cout<<endl;
+			players.push_back(new Hand(name));
 			cout<<"Player "<<i+1<<": "<<endl;
 			players[i]->sortHandValue();
 			players[i]->sortHandValue();
 			printHand(*players[i]);
 			valueScore = getScore(*players[i]);
-			cout<<getScore(*players[i])<<endl;
-			if(valueScore==0)
-				cout<<"High Card: "<<getHighCard(*players[i])<<endl;
-			else {
-
-			}
+			cout<<"Score: "<<getScore(*players[i])<<endl;
+			cout<<"High Card: "<<getHighCard(*players[i])<<endl;
+			if(valueScore==PAIR||valueScore==DOUBLE||valueScore==TRIPLE||valueScore==FLUSH
+					||valueScore==FOURKIND||valueScore==FULLHOUSE)
+				cout<<"Card Value: "<<PopCardVal<<endl;
+				//STUB
 			cout<<endl;
 		}
 		rankPlayers();
 		for(int i = 0; i<players.size(); i++) {
-			cout<<"Player "<<rank[i]<<endl;
+			cout<<"i: "<<players[i]->name<<endl;
 		}
 	}while(cont == true);
 }
@@ -276,7 +347,6 @@ void startGame() {
 void rankPlayers() {
 	for(int i = 0; i<players.size()-1; i++) {
 		if(getScore(*players[i])>getScore(*players[i+1])) {
-
 		}
 	}
 }
