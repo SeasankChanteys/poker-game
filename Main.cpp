@@ -5,8 +5,8 @@
 #include<time.h> //time
 
 //yes I know the spelling of "Straight" is incorrect
-enum score {NOTHING = 0, PAIR, DOUBLE, TRIPLE, STRAIT, FLUSH, FULLHOUSE = 6, FOURKIND = 7, STRAITFLUSH = 8, ROYAL = 9};
-enum suit{HEART, DIAMOND, CLUBS, SPADES};
+enum score {NOTHING = 0, PAIR, DOUBLE, TRIPLE, STRAIT, FLUSH, FULLHOUSE, FOURKIND, STRAITFLUSH, ROYAL};
+enum suit{HEART=1, DIAMOND, CLUBS, SPADES};
 
 using namespace std;
 
@@ -209,12 +209,11 @@ int getScore(Hand h) {
 	bool isBreak = false;
 	while(isBreak == false) {
 		if(score==9) { //royal flush, straitflush, flush and strait
-			while(i<4 && h.hand[i]->value==h.hand[i+1]->value+1) {
-				checker++;
-				i++;
-			}
-			while(i<4 && h.hand[i]->suit == h.hand[i+1]->suit) {
-				checker2++;
+			while(i<4) {
+				if(h.hand[i]->value==h.hand[i+1]->value+1)
+					checker++;
+				if( h.hand[i]->suit == h.hand[i+1]->suit)
+					checker2++;
 				i++;
 			}
 
@@ -238,10 +237,12 @@ int getScore(Hand h) {
 		else if(score==7) { //four of a kind, three of a kind, full house, pair and two pair
 			checker=0;
 			i=0;
-			while(i<4 && h.hand[i]->value==h.hand[i+1]->value) {
-				checker++;
+			while(i<4) {
+				if(h.hand[i]->value==h.hand[i+1]->value)
+					checker++;
 				i++;
 			}
+
 			if(checker==3) {
 				if(h.hand[0]->value==h.hand[3]->value||h.hand[1]->value==h.hand[4]->value) {
 					score=FOURKIND;
@@ -380,6 +381,7 @@ void startGame() {
 			cin>>name;
 			cout<<endl;
 			players.push_back(new Hand(name));
+			players[i]->PopCardValue=0;
 			cout<<players[i]->name<<"'s Hand: "<<endl;
 			players[i]->sortHandValue();
 			players[i]->sortHandValue();
@@ -419,18 +421,22 @@ void rankPlayers() {
 			else if(rank[i]==rank[j]) {
 				if(players[i]->PopCardValue>players[j]->PopCardValue) {
 					rank.insert(rank.begin()+j+1, rank[i]);
-					rank.erase(rank.begin()+1);
+					rank.erase(rank.begin()+i);
 					if(i>0)
 						i--;
 				}
 			}
+			else if(rank[i]<rank[j]&&i==0) {
+				rank.insert(rank.begin()+i, rank[j]);
+				rank.erase(rank.begin()+j);
+			}
 			else {
-				cout<<"Skipped Rank"<<endl; //delete later
+				//cout<<"Skipped Rank"<<endl; //delete later
 			}
 		}
 	}
 	for(int i = 0; i<rank.size(); i++) {
-		cout<<i<<": "<<players[rank[i]]->name<<endl;
+		cout<<i+1<<": "<<players[rank[i]]->name<<endl;
 	}
 
 }
