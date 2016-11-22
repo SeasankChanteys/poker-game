@@ -4,7 +4,7 @@
 #include<stdlib.h> //rand and srand
 #include<time.h> //time
 
-enum score {NOTHING = 0, PAIR = 1, DOUBLE = 2, TRIPLE = 3, STRAIT = 4, FLUSH = 5, FULLHOUSE = 6, FOURKIND = 7, STRAITFLUSH = 8, ROYAL = 9};
+enum score {NOTHING = 0, PAIR, DOUBLE, TRIPLE, STRAIT, FLUSH, FULLHOUSE = 6, FOURKIND = 7, STRAITFLUSH = 8, ROYAL = 9};
 enum suit{HEART, DIAMOND, CLUBS, SPADES};
 
 using namespace std;
@@ -329,7 +329,7 @@ void startGame() {
 			players[i]->sortHandValue();
 			printHand(*players[i]);
 			valueScore = getScore(*players[i]);
-			cout<<"Score: "<<getScore(*players[i])<<endl;
+			cout<<"Score: "<<valueScore<<endl;
 			cout<<"High Card: "<<getHighCard(*players[i])<<endl;
 			if(valueScore==PAIR||valueScore==DOUBLE||valueScore==TRIPLE||valueScore==FLUSH
 					||valueScore==FOURKIND||valueScore==FULLHOUSE)
