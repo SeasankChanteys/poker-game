@@ -70,6 +70,8 @@ void startGame();
 
 void toLower(string);
 
+void replaceCards(int, int);
+
 int getScore(Hand);
 void rankPlayers();
 
@@ -306,6 +308,7 @@ int getScore(Hand h) {
 	return score;
 }
 
+
 //prints hand h to console
 void printHand(Hand h) {
 	int v = 0;
@@ -360,7 +363,9 @@ void startGame() {
 	int valueScore = 0;
 	string name;
 
+	int in;
 	string input;
+	int hold;
 	//Hand a;
 
 	do {
@@ -392,13 +397,49 @@ void startGame() {
 			cardVal = players[i]->hand[highCardLoc]->value;
 			cardSuit = players[i]->hand[highCardLoc]->suit;
 			cout<<"High Card: "<<endl;
-			printCard(cardVal, cardSuit); //finish
+			printCard(cardVal, cardSuit);
 			players[i]->PopCardValue=PopCardVal;
 			if(players[i]->PopCardValue!=0)
 				cout<<"Card Value: "<<players[i]->PopCardValue<<endl;
 			cout<<endl;
+			cout<<"Do you want to replace any cards?"<<endl;
+			cin>>input;
+			toLower(input);
+			if(input=="yes"||input=="y") {
+				do {
+					cout<<"how many cards do you want to replace?"<<endl;
+					cin>>in;
+				}while(in<1 || in>5);
+				cout<<"What card do you want to replace?"<<endl;
+				for(int j = 0; j<in; j++) {
+					cin>>hold;
+					replaceCards(hold, i);
+				}
+				players[i]->PopCardValue=0;
+				cout<<players[i]->name<<"'s Hand: "<<endl;
+				players[i]->sortHandValue();
+				players[i]->sortHandValue();
+				printHand(*players[i]);
+				players[i]->valueScore = getScore(*players[i]);
+				cout<<"Score: "<<players[i]->valueScore<<endl;
+				highCardLoc = getHighCardLoc(*players[i]);
+				cardVal = players[i]->hand[highCardLoc]->value;
+				cardSuit = players[i]->hand[highCardLoc]->suit;
+				cout<<"High Card: "<<endl;
+				printCard(cardVal, cardSuit);
+				players[i]->PopCardValue=PopCardVal;
+				if(players[i]->PopCardValue!=0)
+					cout<<"Card Value: "<<players[i]->PopCardValue<<endl;
+				cout<<endl;
+			}
+			else {}
 		}
-		rankPlayers();
+		if(players.size()>1) {
+			rankPlayers();
+		}
+		else {
+			cout<<"Only "<<players[0]->name<<" is playing..."<<endl;
+		}
 	}while(cont == true);
 	cout<<"See You Later :)"<<endl;
 }
@@ -415,15 +456,11 @@ void rankPlayers() {
 			if(rank[i]>rank[j]) {
 				rank.insert(rank.begin()+j+1, rank[i]);
 				rank.erase(rank.begin()+i);
-				if(i>0)
-					i--;
 			}
 			else if(rank[i]==rank[j]) {
 				if(players[i]->PopCardValue>players[j]->PopCardValue) {
 					rank.insert(rank.begin()+j+1, rank[i]);
 					rank.erase(rank.begin()+i);
-					if(i>0)
-						i--;
 				}
 			}
 			else if(rank[i]<rank[j]&&i==0) {
@@ -435,9 +472,7 @@ void rankPlayers() {
 			}
 		}
 	}
-	for(int i = 0; i<rank.size(); i++) {
-		cout<<i+1<<": "<<players[rank[i]]->name<<endl;
-	}
+	cout<<"The winner is: "<<players[rank[0]]->name<<endl;
 
 }
 
@@ -445,4 +480,10 @@ void toLower(string s) {
 	for(int i = 0; i<s.length(); i++) {
 		s[i]=tolower(s[i]);
 	}
+}
+
+void replaceCards(int loc, int player) {
+	players[player]->hand.erase(players[player]->hand.begin()+loc-1);
+	players[player]->hand.insert(players[player]->hand.begin()+loc-1, cards[0]);
+	cards.erase(cards.begin());
 }
