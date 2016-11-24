@@ -228,7 +228,7 @@ int getScore(Hand h) {
 					score=ROYAL;
 				isBreak=true;
 			}
-			else if(checker2==5) { //if all the cards suits are the same, but is not a sequence
+			if(checker2==5 && checker < 5) { //if all the cards suits are the same, but is not a sequence
 				score=FLUSH;
 			}
 			else {
@@ -445,34 +445,51 @@ void startGame() {
 }
 
 void rankPlayers() {
-	vector<int> rank;
-	//adding the players' ranks to a vector
-	for(int i = 0; i<players.size(); i++) {
-		rank.push_back (players[i]->valueScore);
-	}
-	//sorting the ranks from lowest to highest
-	for(int i = 0; i<rank.size()-1; i++) {
-		for(int j = i+1; j<rank.size(); j++) {
-			if(rank[i]>rank[j]) {
-				rank.insert(rank.begin()+j+1, rank[i]);
-				rank.erase(rank.begin()+i);
-			}
-			else if(rank[i]==rank[j]) {
-				if(players[i]->PopCardValue>players[j]->PopCardValue) {
-					rank.insert(rank.begin()+j+1, rank[i]);
-					rank.erase(rank.begin()+i);
-				}
-			}
-			else if(rank[i]<rank[j]&&i==0) {
-				rank.insert(rank.begin()+i, rank[j]);
-				rank.erase(rank.begin()+j);
-			}
-			else {
-				//cout<<"Skipped Rank"<<endl; //delete later
-			}
+//	vector<int> rank;
+//	//adding the players' ranks to a vector
+//	for(int i = 0; i<players.size(); i++) {
+//		rank.push_back (players[i]->valueScore);
+//	}
+//	//sorting the ranks from lowest to highest
+//	for(int i = 0; i<rank.size()-1; i++) {
+//		for(int j = i+1; j<rank.size(); j++) {
+//			if(rank[i]<rank[j]) {
+//				rank.insert(rank.begin()+j+1, rank[i]);
+//				rank.erase(rank.begin()+i);
+//				if(i>0)
+//					i--;
+//			}
+//			else if(rank[i]==rank[j]) {
+//				if(players[i]->PopCardValue<players[j]->PopCardValue) {
+//					rank.insert(rank.begin()+j+i, rank[i]);
+//					rank.erase(rank.begin()+i);
+//					if(i>0)
+//						i--;
+//				}
+//			}
+//			else {}
+//		}
+//	}
+//
+//	for(int i = 0; i<rank.size(); i++) {
+//		cout<<i<<": "<<players[rank[i]]->name<<endl;
+//	}
+//
+//	cout<<"The winner is: "<<players[rank[0]]->name<<endl;
+
+	int location = 0;
+	int topScore = players[0]->valueScore;
+	for(int i = 1; i<players.size(); i++) {
+		if(players[i]->valueScore>topScore) {
+			topScore = players[i]->valueScore;
+			location = i;
+		}
+		else if(players[i]->valueScore==topScore) {
+			if(players[i]->PopCardValue > players[location]->PopCardValue)
+				location = i;
 		}
 	}
-	cout<<"The winner is: "<<players[rank[0]]->name<<endl;
+	cout<<"The winner is: "<<players[location]->name<<endl;
 
 }
 
